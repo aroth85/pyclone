@@ -6,7 +6,7 @@ Created on 2011-12-15
 from __future__ import division
 
 from math import exp, log
-from random import betavariate as beta_rvs, gammavariate as gamma_rvs, random
+from random import betavariate as beta_rvs, gammavariate as gamma_rvs, random, shuffle
 
 from pyclone.utils import bernoulli_rvs, discrete_rvs, log_space_normalise
 
@@ -72,7 +72,11 @@ class LabelUpdater(object):
         self.concentration_parameter = concentration_parameter
 
     def update_clusters(self, clusters):
-        for i in range(clusters.num_members):
+        # Shuffle the order of position to reseat.
+        members = range(clusters.num_members)
+        shuffle(members)
+        
+        for i in members:
             self._reseat_member(i, clusters)
     
     def _reseat_member(self, member, clusters):

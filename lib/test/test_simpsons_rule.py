@@ -10,7 +10,7 @@ import unittest
 from math import log, exp
 
 from pyclone._likelihoods import BetaBinomialLikelihood, DataPoint
-from pyclone.utils import SimpsonsRuleIntegrator
+from pyclone.utils import SimpsonsRuleIntegrator, log_integrate
 
 
 class Test(unittest.TestCase):
@@ -34,6 +34,9 @@ class Test(unittest.TestCase):
         expected_value = F(b) - F(a)
         
         self.assertAlmostEqual(observed_value, expected_value, delta=1e-6)
+
+        print exp(log_integrate(log_f, a, b, 10)), expected_value
+        
 
     def test_odd_mesh_size_raises_error(self):
         self.assertRaises(Exception, SimpsonsRuleIntegrator, 0, 1, 99)

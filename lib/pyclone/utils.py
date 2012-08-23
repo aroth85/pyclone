@@ -5,6 +5,8 @@ import random
 
 from math import exp, log, lgamma as log_gamma, isinf
 
+from scipy.integrate import quad
+
 #=======================================================================================================================
 # Log space normalisation.
 #=======================================================================================================================
@@ -128,3 +130,16 @@ class SimpsonsRuleIntegrator(Integrator):
         log_total.append(log(2) + log_sum_exp(two_total))
   
         return log(self.step_size) - log(3) + log_sum_exp(log_total)
+
+def log_integrate(log_f, a, b, mesh_size):
+    step_size = (b - a) / mesh_size
+    
+    knots = [i * step_size + a for i in range(mesh_size + 1)]
+    
+    m = max([log_f(x) for x in knots])
+    
+    f = lambda x: exp(log_f(x) - m)
+    
+    I = quad(f, a, b)[0]
+    
+    return m + log(I)

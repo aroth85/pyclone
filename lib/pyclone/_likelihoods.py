@@ -9,7 +9,7 @@ from collections import OrderedDict
 from math import lgamma as log_gamma
 
 from pyclone.utils import log_sum_exp, log_binomial_coefficient, log_binomial_likelihood, log_beta_pdf, \
-    SimpsonsRuleIntegrator
+    SimpsonsRuleIntegrator, log_integrate
 
 class DataPoint(object):
     def __init__(self, a, d, mu_r, mu_v, delta_r, delta_v):
@@ -92,7 +92,7 @@ class BinomialLikelihood(Likelihood):
         return log_sum_exp(ll)
 
 class BetaBinomialLikelihood(Likelihood):
-    def __init__(self, data_point, mesh_size=100, beta_precision=100):
+    def __init__(self, data_point, mesh_size=100, beta_precision=10):
         '''
         Likelihood with a beta prior over mu_v. 
         
@@ -107,6 +107,8 @@ class BetaBinomialLikelihood(Likelihood):
         self._set_beta_params(data_point.mu_v, beta_precision)
 
         self._integrator = SimpsonsRuleIntegrator(0, 1, mesh_size)
+        
+        self.mesh_size = mesh_size
 
     def _log_likelihood(self, phi):    
         ll = []
@@ -125,7 +127,7 @@ class BetaBinomialLikelihood(Likelihood):
         '''
         log_f = lambda x: self._log_binomial_likelihood(phi, mu_r, x) + log_beta_pdf(x, alpha_v, beta_v)
 
-        return self._integrator.log_integrate(log_f)
+        return log_integrate(log_f, 0, 1, self.mesh_size)
     
     def _set_beta_params(self, mu_v, s):
         self.alpha_v = []
